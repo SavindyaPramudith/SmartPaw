@@ -1,21 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'login.dart';
+
+// ✅ Correct global declaration
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class TemperaturePage extends StatefulWidget {
   @override
   _TemperaturePageState createState() => _TemperaturePageState();
+ 
 }
+
 
 class _TemperaturePageState extends State<TemperaturePage> {
   double _currentTemp = 0.0;
   late DatabaseReference _tempRef;
   Stream<DatabaseEvent>? _tempStream;
 
+   Future<void> _initializeNotifications() async {
+  const AndroidInitializationSettings androidSettings =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const InitializationSettings initSettings = InitializationSettings(
+    android: androidSettings,
+  );
+
+   await flutterLocalNotificationsPlugin.initialize(
+    initSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+      // Handle the user's interaction with the notification (if needed)
+      print('Notification tapped with payload: ${response.payload}');
+    },
+    onDidReceiveBackgroundNotificationResponse: (NotificationResponse response) {
+      // Handle background notification tap (optional, can be left empty)
+    },
+  );
+}
+
   @override
   void initState() {
     super.initState();
+    _initializeNotifications();
     _setupTemperatureListener();
   }
 

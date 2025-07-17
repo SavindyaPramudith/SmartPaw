@@ -86,7 +86,6 @@ class _DogProfilePageState extends State<DogProfilePage> {
     final updatedData = {
       'name': nameController.text.trim(),
       'breed': breedController.text.trim(),
-      'age': int.parse(ageController.text.trim()),
       'weight': double.parse(weightController.text.trim()),
       'gender': gender,
       'dob': dob!.toIso8601String(),
@@ -146,18 +145,17 @@ class _DogProfilePageState extends State<DogProfilePage> {
                         : null,
                   ),
                   SizedBox(height: 8),
-                  TextFormField(
-                    controller: ageController,
-                    decoration: InputDecoration(labelText: 'Age'),
-                    keyboardType: TextInputType.number,
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty)
-                        return 'Please enter age';
-                      final n = int.tryParse(val);
-                      if (n == null || n < 0) return 'Enter valid age';
-                      return null;
-                    },
+                 if (dob != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                      child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                      "Calculated Age: ${DateTime.now().difference(dob!).inDays ~/ 365} years",
+                      style: TextStyle(color: Colors.grey[700]),
                   ),
+                ),
+              ),
                   SizedBox(height: 8),
                   TextFormField(
                     controller: weightController,
@@ -299,7 +297,13 @@ class _DogProfilePageState extends State<DogProfilePage> {
                       ),
                       SizedBox(height: 12),
                       _buildDetailRow('Breed', dogData!['breed']),
-                      _buildDetailRow('Age', dogData!['age']?.toString()),
+                      _buildDetailRow(
+                                      'Age',
+                                      dogData!['dob'] != null
+                                      ? '${DateTime.now().difference(DateTime.parse(dogData!['dob'])).inDays ~/ 365} years'
+                                     : 'N/A',
+                      ),
+
                       _buildDetailRow('Weight', dogData!['weight']?.toString()),
                       _buildDetailRow('Gender', dogData!['gender']),
                       _buildDetailRow(

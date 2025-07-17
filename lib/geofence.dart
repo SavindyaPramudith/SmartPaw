@@ -18,6 +18,7 @@ class _GeofenceScreenState extends State<GeofenceScreen> {
   double _zoom = 15.0; // Default map zoom level
   bool _isOutsideGeofence = false; // Flag if dog has breached geofence
   bool _isFirstTime = false; // Flag for first-time geofence creation
+  String? _lastGeofenceStatus;
   bool _isDisposed = false; // Prevent setState after widget is disposed
 
   final Distance _distanceCalc = Distance();
@@ -131,35 +132,6 @@ class _GeofenceScreenState extends State<GeofenceScreen> {
     });
   }
 
-  // Check if dog's location is outside the geofence
-  void _checkGeofenceBreach(LatLng currentLocation) {
-    if (_geofenceCenter == null) return;
-
-    final double distance = _distanceCalc.as(
-      LengthUnit.Meter,
-      _geofenceCenter!,
-      currentLocation,
-    );
-
-    if (distance > _radius && !_isOutsideGeofence) {
-      setState(() {
-        _isOutsideGeofence = true;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('🚨 Dog is outside the safe area!'),
-          backgroundColor: Colors.redAccent,
-          duration: Duration(seconds: 6),
-        ),
-      );
-    } else if (distance <= _radius && _isOutsideGeofence) {
-      setState(() {
-        _isOutsideGeofence = false;
-      });
-    }
-  }
-
   // Save geofence center and radius to Firebase
   Future<void> _saveGeofenceCenterAndRadius(LatLng center) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -232,6 +204,69 @@ class _GeofenceScreenState extends State<GeofenceScreen> {
     );
   }
 
+  void _checkGeofenceBreach(LatLng currentLocation) async {
+    if (_geofenceCenter == null) return;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final double distance = _distanceCalc.as(
+      LengthUnit.Meter,
+      _geofenceCenter!,
+      currentLocation,
+    );
+
+    final breachRef = FirebaseDatabase.instance.ref(
+      'users/${user.uid}/dog/geofenceBreaches',
+    );
+    final timestamp = DateTime.now().toIso8601String();
+
+    // Dog exited geofence
+    if (distance > _radius && _lastGeofenceStatus != 'outside') {
+      _lastGeofenceStatus = 'outside';
+
+      setState(() {
+        _isOutsideGeofence = true;
+      });
+
+      await breachRef.push().set({
+        'time': timestamp,
+        'location': '${currentLocation.latitude}, ${currentLocation.longitude}',
+        'status': 'breached',
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🚨 Dog is outside the safe area!'),
+          backgroundColor: Colors.redAccent,
+          duration: Duration(seconds: 6),
+        ),
+      );
+    }
+    // Dog returned to geofence
+    else if (distance <= _radius && _lastGeofenceStatus != 'inside') {
+      _lastGeofenceStatus = 'inside';
+
+      setState(() {
+        _isOutsideGeofence = false;
+      });
+
+      await breachRef.push().set({
+        'time': timestamp,
+        'location': '${currentLocation.latitude}, ${currentLocation.longitude}',
+        'status': 'returned',
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('✅ Dog returned to the safe area!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 6),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_dogLocation == null && _geofenceCenter == null) {
@@ -247,6 +282,22 @@ class _GeofenceScreenState extends State<GeofenceScreen> {
         backgroundColor: Colors.lightBlue[300],
         foregroundColor: Colors.white,
         title: Text("Dog Location & Geofence"),
+        actions: [
+    IconButton(
+      icon: Icon(Icons.refresh),
+      tooltip: 'Refresh Geofence',
+      onPressed: () {
+        _fetchInitialData();
+         _listenToDogLocation();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('🔄 Refreshed geofence and dog location'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      },
+    ),
+  ],
       ),
       body: Stack(
         children: [

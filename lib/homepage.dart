@@ -8,6 +8,7 @@ import 'temperature.dart';
 import 'geofence.dart';
 import 'dog_profile.dart';
 import 'userProfile.dart';
+import 'history.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _FeatureItem('Dog Location & Geofence', Icons.map_outlined, Colors.orange),
     _FeatureItem('Temperature', Icons.thermostat, Colors.redAccent),
     _FeatureItem('Medication', Icons.medication, Colors.blue),
+    _FeatureItem('History', Icons.history, Colors.blue),
   ];
 
   @override
@@ -78,6 +80,19 @@ class _HomeScreenState extends State<HomeScreen> {
           MaterialPageRoute(builder: (_) => MedicationReminderPage()),
         );
         break;
+      case 'History':
+        ElevatedButton(
+          child: Text("View History"),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => HistoryPage()),
+            );
+          },
+        );
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPage()));
+
     }
   }
 
