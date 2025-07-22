@@ -239,7 +239,7 @@ class _GeofenceScreenState extends State<GeofenceScreen> {
         SnackBar(
           content: Text('🚨 Dog is outside the safe area!'),
           backgroundColor: Colors.redAccent,
-          duration: Duration(seconds: 6),
+          duration: Duration(seconds: 3),
         ),
       );
     }
@@ -261,7 +261,7 @@ class _GeofenceScreenState extends State<GeofenceScreen> {
         SnackBar(
           content: Text('✅ Dog returned to the safe area!'),
           backgroundColor: Colors.green,
-          duration: Duration(seconds: 6),
+          duration: Duration(seconds: 3),
         ),
       );
     }

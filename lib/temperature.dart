@@ -97,7 +97,7 @@ class _TemperaturePageState extends State<TemperaturePage> {
                 : '⚠️ High temperature! See a vet.',
           ),
           backgroundColor: Colors.redAccent,
-          duration: Duration(seconds: 4),
+          duration: Duration(seconds: 3),
         ),
       );
     }

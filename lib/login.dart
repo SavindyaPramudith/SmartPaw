@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'register.dart';
 import 'homepage.dart';
+import 'mainscreen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -41,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Navigate to homepage and remove login screen from back stack
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => MainScreen()),
       );
     } on FirebaseAuthException catch (e) {
       // Show specific error messages based on Firebase exception

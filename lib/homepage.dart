@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'mainscreen.dart';
 
 import 'login.dart';
 import 'medicationreminder.dart';
@@ -54,47 +55,73 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _navigateToFeature(BuildContext context, String title) {
-    switch (title) {
-      case 'Profile':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => DogProfilePage()),
-        );
-        break;
-      case 'Dog Location & Geofence':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => GeofenceScreen()),
-        );
-        break;
-      case 'Temperature':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => TemperaturePage()),
-        );
-        break;
-      case 'Medication':
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => MedicationReminderPage()),
-        );
-        break;
-      case 'History':
-        ElevatedButton(
-          child: Text("View History"),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => HistoryPage()),
-            );
-          },
-        );
+  // void _navigateToFeature(BuildContext context, String title) {
+  //   switch (title) {
+  //     case 'Profile':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (_) => DogProfilePage()),
+  //       );
+  //       break;
+  //     case 'Dog Location & Geofence':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (_) => GeofenceScreen()),
+  //       );
+  //       break;
+  //     case 'Temperature':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (_) => TemperaturePage()),
+  //       );
+  //       break;
+  //     case 'Medication':
+  //       Navigator.push(
+  //         context,
+  //         MaterialPageRoute(builder: (_) => MedicationReminderPage()),
+  //       );
+  //       break;
+  //     case 'History':
+  //       ElevatedButton(
+  //         child: Text("View History"),
+  //         onPressed: () {
+  //           Navigator.push(
+  //             context,
+  //             MaterialPageRoute(builder: (_) => HistoryPage()),
+  //           );
+  //         },
+  //       );
 
-      Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPage()));
+  //     Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPage()));
 
-    }
+  //   }
+  // }
+void _navigateToFeature(BuildContext context, String title) {
+  int targetIndex = 0;
+  switch (title) {
+    case 'Profile':
+      Navigator.push(context, MaterialPageRoute(builder: (_) => DogProfilePage()));
+      return;
+    case 'Dog Location & Geofence':
+      targetIndex = 1;
+      break;
+    case 'Temperature':
+      targetIndex = 2;
+      break;
+    case 'Medication':
+      targetIndex = 3;
+      break;
+    case 'History':
+      targetIndex = 4;
+      break;
   }
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => MainScreen(initialIndex: targetIndex)),  );
+}
+
+
 
   void _logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
